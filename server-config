@@ -1,0 +1,12 @@
+SAMM VIP - THÔNG TIN SERVER
+Loại yêu cầu: VPN
+Port được cung cấp: 3128
+
+CÒN THIẾU:
+- Host/IP máy chủ VPN thật:
+- Giao thức VPN (IKEv2 / WireGuard / OpenVPN / loại khác):
+- Remote identifier (nếu IKEv2):
+- Phương thức xác thực:
+
+Ghi chú: 3128 thường là cổng HTTP proxy, không đủ để tạo cấu hình VPN iOS.
+Không dùng địa chỉ máy chủ giả trong profile cài đặt.
