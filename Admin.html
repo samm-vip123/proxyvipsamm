@@ -1,7 +1,18 @@
-<!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SAMM VIP Admin Demo</title>
-<style>body{margin:0;background:#07101b;color:#eaf6ff;font:15px Arial;padding:22px}main{max-width:520px;margin:auto;background:#101d2b;border:1px solid #1d354b;border-radius:18px;padding:20px}h1{color:#39d5c3}select,input,button{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:1px solid #29445a;background:#091522;color:white}button{background:#087e79;border:0;font-weight:bold}code{display:block;overflow-wrap:anywhere;background:#091522;padding:12px;border-radius:8px;margin-top:12px}.note{color:#91a6b8;line-height:1.5;font-size:13px}</style></head>
-<body><main><h1>SAMM VIP ADMIN</h1><p class="note">Công cụ tạo mã minh họa chạy hoàn toàn trong trình duyệt. Không phải hệ thống cấp Key bảo mật; người dùng có thể xem mã nguồn và tự tạo Key.</p>
-<label>Thời hạn Key</label><select id="duration"><option value="1h">1 giờ</option><option value="1d">1 ngày</option><option value="7d">1 tuần</option><option value="forever">Vĩnh viễn</option></select>
-<button onclick="makeKey()">TẠO KEY DEMO</button><code id="out">Key sẽ hiển thị ở đây</code><p class="note">Muốn xác thực Key thật cần backend, cơ sở dữ liệu, tài khoản quản trị và kiểm tra hạn dùng trên máy chủ. Không đặt bí mật Admin trong HTML.</p></main>
-<script>function makeKey(){let a=new Uint8Array(8);crypto.getRandomValues(a);let s=[...a].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase();let d=document.getElementById('duration').value;document.getElementById('out').textContent='SAMM-'+d.toUpperCase()+'-'+s}</script></body></html>
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SAMM VIP Admin</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#050b13;color:#eefaff;font:15px Arial;padding:22px}.wrap{max-width:560px;margin:auto}.card{background:#0d1926;border:1px solid #1c3a50;border-radius:18px;padding:20px;margin:14px 0}h1{color:#43e3d0;letter-spacing:2px}input,select,button{width:100%;padding:13px;border-radius:11px;margin:8px 0;background:#06111c;border:1px solid #25445a;color:white;font:inherit}button{background:linear-gradient(90deg,#087f83,#176fc0);border:0;font-weight:bold}code{display:block;overflow-wrap:anywhere;background:#06111c;padding:13px;border-radius:10px;margin-top:10px}.muted{color:#8da8bb;font-size:13px;line-height:1.5}.keyrow{padding:10px;border-bottom:1px solid #1c3a50;overflow-wrap:anywhere}
+</style></head><body><main class="wrap"><section class="card"><h1>SAMM VIP ADMIN</h1><p class="muted">Tạo Key dùng cho giao diện Index. Admin và Index phải được mở trong cùng trình duyệt/thiết bị vì danh sách Key lưu cục bộ trong trình duyệt này.</p>
+<label>Thời hạn</label><select id="duration"><option value="1h">1 giờ</option><option value="1d">1 ngày</option><option value="7d">1 tuần</option><option value="forever">Vĩnh viễn</option></select>
+<button onclick="createKey()">TẠO KEY MỚI</button><code id="newkey">Key mới sẽ hiển thị ở đây</code><button onclick="copyKey()">SAO CHÉP KEY</button></section>
+<section class="card"><h3>Danh sách Key đã tạo</h3><div id="list" class="muted">Chưa có Key.</div><button class="muted" onclick="clearKeys()" style="background:#51252b">XÓA TOÀN BỘ KEY</button></section>
+<p class="muted">Lưu ý bảo mật: đây là quản lý Key cục bộ để thử nghiệm giao diện, không phải hệ thống cấp phép bảo mật. Muốn dùng nhiều người/thiết bị cần backend có đăng nhập Admin và cơ sở dữ liệu.</p></main>
+<script>
+const DB='samm_vip_keys_v2';let latest='';
+function db(){try{return JSON.parse(localStorage.getItem(DB)||'{}')}catch(e){return {}}}
+function save(x){localStorage.setItem(DB,JSON.stringify(x))}
+function createKey(){let d=document.getElementById('duration').value;let bytes=new Uint8Array(10);crypto.getRandomValues(bytes);let rand=[...bytes].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase();latest='SAMM-'+d.toUpperCase()+'-'+rand;let exp=0;if(d==='1h')exp=Date.now()+3600000;if(d==='1d')exp=Date.now()+86400000;if(d==='7d')exp=Date.now()+604800000;let x=db();x[latest]={exp:exp,created:Date.now(),duration:d};save(x);document.getElementById('newkey').textContent=latest;render()}
+function copyKey(){if(!latest)return; navigator.clipboard?.writeText(latest)}
+function render(){let x=db(),el=document.getElementById('list'),keys=Object.keys(x);el.innerHTML='';if(!keys.length){el.textContent='Chưa có Key.';return}keys.forEach(k=>{let r=document.createElement('div');r.className='keyrow';let exp=x[k].exp?new Date(x[k].exp).toLocaleString():'Vĩnh viễn';r.textContent=k+' — '+exp;el.appendChild(r)})}
+function clearKeys(){if(confirm('Xóa toàn bộ Key đã tạo?')){save({});latest='';document.getElementById('newkey').textContent='Đã xóa Key';render()}}
+render();
+</script></body></html>
